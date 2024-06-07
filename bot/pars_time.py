@@ -1,14 +1,34 @@
+"""
+Модуль для поиска разных билетов на конкертную дату.
+"""
+
+
 import time
 
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 
 
-async def get_time(date, departure_place, place_of_arrival) -> str:
+async def get_time(
+        date: str,
+        departure_place: str,
+        place_of_arrival: str) -> str:
+    """
+    Получает информацию о времени отправления, прибытия и времени в пути по заданным параметрам.
+
+    Args:
+        date (str): Дата в формате 'YYYY-MM-DD'.
+        departure_place (str): Место отправления.
+        place_of_arrival (str): Место прибытия.
+
+    Returns:
+        str: Строка с информацией о времени отправления, прибытия и времени в пути.
+             В случае ошибки возвращает 'err'.
+    """
     # Указываем путь к исполняемому файлу Chrome WebDriver
     webdriver_path = "A:\\Учёба\\практика 2 курс\\chromedriver.exe"
-
     # Создаем экземпляр Chrome WebDriver
     print("get_time")
     options = webdriver.ChromeOptions()
@@ -27,17 +47,15 @@ async def get_time(date, departure_place, place_of_arrival) -> str:
         text = driver.find_element(
             By.XPATH, "/html/body/main/div[2]/div/div/div/p"
         ).text
-        print(text)
         return "err"
-    except Exception:
+    except NoSuchElementException:
         pass
     try:
         text = driver.find_element(
             By.XPATH, "/html/body/main/div[2]/div/div/section/h3"
         ).text
-        print("text2")
         return "err"
-    except Exception:
+    except NoSuchElementException:
         pass
 
     #   Парсинг даты время отправления/прибытия + время в пути
@@ -46,13 +64,15 @@ async def get_time(date, departure_place, place_of_arrival) -> str:
             travel_time = (
                 driver.find_element(
                     By.XPATH,
-                    f"/html/body/main/div[3]/form/div/div[4]/div/div[1]/div[{i}]/div[2]/div[1]",
+                    f"/html/body/main/div[3]/form/div/div[4]/div/\
+                        div[1]/div[{i}]/div[2]/div[1]",
                 ) .text.replace(
                     "\n",
                     " ") .split("В пути:")[1])
             result += f"{i}) Отправление:  " + driver.find_element(
                 By.XPATH,
-                f"/html/body/main/div[3]/form/div/div[4]/div/div[1]/div[{i}]/div[2]/div[1]/div[1]/div[1]/div[1]",
+                f"/html/body/main/div[3]/form/div/div[4]/div/div[1]\
+                    /div[{i}]/div[2]/div[1]/div[1]/div[1]/div[1]",
             ).text.replace(
                 "\n",
                 " ")
@@ -61,7 +81,8 @@ async def get_time(date, departure_place, place_of_arrival) -> str:
                 "    Прибытие:  " +
                 driver.find_element(
                     By.XPATH,
-                    f"/html/body/main/div[3]/form/div/div[4]/div/div[1]/div[{i}]/div[2]/div[1]/div[1]/div[2]/div[1]",
+                    f"/html/body/main/div[3]/form/div/div[4]/div/\
+                        div[1]/div[{i}]/div[2]/div[1]/div[1]/div[2]/div[1]",
                 ).text.replace(
                     "\n",
                     " "))
@@ -69,21 +90,22 @@ async def get_time(date, departure_place, place_of_arrival) -> str:
             time_sum = result + "\n    В пути: " + travel_time + "\n"
             ans += time_sum
             result = ""
-            print("1")
-    except Exception:
+    except NoSuchElementException:
         pass
     try:
         for i in range(1, 5):
             travel_time = (
                 driver.find_element(
                     By.XPATH,
-                    f"/html/body/main/div[3]/form/div/div[2]/div/div[1]/div[{i}]/div[2]/div[1]",
+                    f"/html/body/main/div[3]/form/div/div[2]/div/\
+                        div[1]/div[{i}]/div[2]/div[1]",
                 ) .text.replace(
                     "\n",
                     " ") .split("В пути:")[1])
             result += f"{i}) Отправление:  " + driver.find_element(
                 By.XPATH,
-                f"/html/body/main/div[3]/form/div/div[2]/div/div[1]/div[{i}]/div[2]/div[1]/div[1]/div[1]/div[1]",
+                f"/html/body/main/div[3]/form/div/div[2]/div/div[1]\
+                    /div[{i}]/div[2]/div[1]/div[1]/div[1]/div[1]",
             ).text.replace(
                 "\n",
                 " ")
@@ -92,7 +114,8 @@ async def get_time(date, departure_place, place_of_arrival) -> str:
                 "    Прибытие:  " +
                 driver.find_element(
                     By.XPATH,
-                    f"/html/body/main/div[3]/form/div/div[2]/div/div[1]/div[{i}]/div[2]/div[1]/div[1]/div[2]/div[1]",
+                    f"/html/body/main/div[3]/form/div/div[2]/div/\
+                        div[1]/div[{i}]/div[2]/div[1]/div[1]/div[2]/div[1]",
                 ).text.replace(
                     "\n",
                     " "))
@@ -100,20 +123,20 @@ async def get_time(date, departure_place, place_of_arrival) -> str:
             time_sum = result + "\n    В пути: " + travel_time + "\n"
             ans += time_sum
             result = ""
-            print("1")
-    except Exception:
+    except NoSuchElementException:
         if ans == "":
             try:
                 travel_time = (
                     driver.find_element(
                         By.XPATH,
-                        f"/html/body/main/div[3]/form/div/div[2]/div/div[1]/div/div[2]",
+                        "/html/body/main/div[3]/form/div/div[2]/div/div[1]/div/div[2]",
                     ) .text.replace(
                         "\n",
                         " ") .split("В пути:")[1] .split("м")[0])
                 result += f"{i}) Отправление:  " + driver.find_element(
                     By.XPATH,
-                    f"/html/body/main/div[3]/form/div/div[2]/div/div[1]/div/div[2]/div[1]/div[1]/div[1]/div[1]",
+                    "/html/body/main/div[3]/form/div/div[2]\
+                        /div/div[1]/div/div[2]/div[1]/div[1]/div[1]/div[1]",
                 ).text.replace(
                     "\n",
                     " ")
@@ -122,17 +145,15 @@ async def get_time(date, departure_place, place_of_arrival) -> str:
                     "    Прибытие:  " +
                     driver.find_element(
                         By.XPATH,
-                        f"/html/body/main/div[3]/form/div/div[2]/div/div[1]/div/div[2]/div[1]/div[1]/div[2]/div[1]",
+                        "/html/body/main/div[3]/form/div/div[2]\
+                            /div/div[1]/div/div[2]/div[1]/div[1]/div[2]/div[1]",
                     ).text.replace(
                         "\n",
                         " "))
                 time_sum = result + "\n    В пути: " + travel_time + " м.\n"
                 ans += time_sum
                 result = ""
-                print("2")
-            except Exception:
+            except NoSuchElementException:
                 pass
-
-    print(ans)
-
+                
     return ans
